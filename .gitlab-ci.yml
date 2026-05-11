@@ -57,6 +57,11 @@ sonarqube_scan:
 
 docker_build:
   stage: build
+  image: docker:24.0.5  # On utilise une image qui contient l'outil Docker
+  services:
+    - docker:24.0.5-dind # On lance le service Docker "côte à côte"
+  variables:
+    DOCKER_TLS_CERTDIR: "" # On désactive le TLS pour simplifier la connexion locale
   script:
     - echo "[build] Construction de l'image Docker..."
     - docker build -t secnotes:$IMAGE_TAG .
