@@ -8,14 +8,13 @@ stages:
 
 default:
   tags:
-    - local  # Vérifie bien que ce tag correspond à ton Runner sur GitLab
+    - local  # Assure-toi que c'est bien le tag de ton runner
 
 variables:
   APP_NAME: "secnotes"
   IMAGE_TAG: "$CI_COMMIT_SHORT_SHA"
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
 
-# Cache pour accélérer les futurs builds
 cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
@@ -24,24 +23,31 @@ cache:
 
 install_dependencies:
   stage: install
-  image: node:20-alpine
+  image: node:20  # Utilisation de Debian pour la compatibilité binaire
   script:
+    - echo "[install] Installation des dépendances..."
     - npm ci
   artifacts:
     paths:
       - node_modules/
-    expire_in: 1 hour
+    expire_in: 1 day
 
 run_tests:
   stage: test
-  image: node:20-alpine
+  image: node:20  # Indispensable pour MongoMemoryServer
+  dependencies:
+    - install_dependencies
   script:
+    - echo "[test] Exécution des tests Jest..."
     - npm test
 
 sonarqube_scan:
   stage: sast
   image: sonarsource/sonar-scanner-cli:latest
+  dependencies:
+    - install_dependencies
   script:
+    - echo "[sast] Analyse SonarQube locale..."
     - sonar-scanner
       -Dsonar.host.url=$SONAR_HOST_URL
       -Dsonar.token=$SONAR_TOKEN
@@ -52,6 +58,7 @@ sonarqube_scan:
 docker_build:
   stage: build
   script:
+    - echo "[build] Construction de l'image Docker..."
     - docker build -t secnotes:$IMAGE_TAG .
     - docker tag secnotes:$IMAGE_TAG secnotes:latest
 
@@ -60,4 +67,5 @@ deploy_k8s_local:
   only:
     - main
   script:
+    - echo "[deploy] Déploiement local sur Kubernetes..."
     - kubectl apply -f k8s/
