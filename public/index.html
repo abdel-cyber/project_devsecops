@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SecNotes - Interface de démonstration</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --line: #d9e1ec;
+      --text: #1c2430;
+      --muted: #5d6b7a;
+      --accent: #1f6feb;
+      --danger: #c62828;
+      --ok: #0a7f3f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    header {
+      background: #0f1720;
+      color: white;
+      padding: 22px 28px;
+    }
+    header h1 { margin: 0 0 6px; font-size: 28px; }
+    header p { margin: 0; color: #c8d2dc; }
+    .wrap {
+      max-width: 1200px;
+      margin: 24px auto;
+      padding: 0 16px 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 18px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 6px 18px rgba(22, 34, 51, 0.05);
+    }
+    .card h2 {
+      margin: 0 0 14px;
+      font-size: 20px;
+    }
+    label {
+      display: block;
+      margin: 10px 0 6px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #bcc7d4;
+      border-radius: 10px;
+      font-size: 14px;
+      background: white;
+    }
+    textarea { min-height: 110px; resize: vertical; }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button.secondary {
+      background: #6b7785;
+    }
+    .status {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      white-space: pre-wrap;
+      background: #eef4ff;
+      border: 1px solid #cfe0ff;
+    }
+    .status.error {
+      color: var(--danger);
+      background: #fff0f0;
+      border-color: #ffd2d2;
+    }
+    .status.success {
+      color: var(--ok);
+      background: #eefcf4;
+      border-color: #c7efd7;
+    }
+    .mono {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 13px;
+      background: #0f1720;
+      color: #d7e2ef;
+      padding: 12px;
+      border-radius: 10px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .notes-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .note {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fbfcfe;
+    }
+    .note h3 {
+      margin: 0 0 6px;
+      font-size: 17px;
+    }
+    .note small {
+      display: block;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .full {
+      grid-column: 1 / -1;
+    }
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>SecNotes</h1>
+    <p>Interface HTML simple pour le laboratoire DevSecOps</p>
+  </header>
+
+  <main class="wrap">
+    <section class="card">
+      <h2>Inscription</h2>
+      <form id="registerForm">
+        <label>Nom d'utilisateur</label>
+        <input type="text" name="username" value="alice" required />
+
+        <label>Email</label>
+        <input type="email" name="email" value="alice@example.com" required />
+
+        <label>Mot de passe</label>
+        <input type="text" name="password" value="azerty123" required />
+
+        <label>Rôle</label>
+        <select name="role">
+          <option value="user">user</option>
+          <option value="admin">admin</option>
+        </select>
+
+        <div class="actions">
+          <button type="submit">Créer le compte</button>
+        </div>
+      </form>
+      <div id="registerStatus" class="status">En attente…</div>
+    </section>
+
+    <section class="card">
+      <h2>Connexion</h2>
+      <form id="loginForm">
+        <label>Nom d'utilisateur</label>
+        <input type="text" name="username" value="alice" required />
+
+        <label>Mot de passe</label>
+        <input type="text" name="password" value="azerty123" required />
+
+        <div class="actions">
+          <button type="submit">Se connecter</button>
+          <button type="button" class="secondary" id="logoutBtn">Se déconnecter</button>
+        </div>
+      </form>
+      <div class="hint">Le JWT récupéré est stocké dans le navigateur pour les appels suivants.</div>
+      <div id="loginStatus" class="status">Aucun token</div>
+    </section>
+
+    <section class="card full">
+      <h2>Créer une note</h2>
+      <form id="noteForm">
+        <div class="row">
+          <div>
+            <label>Titre</label>
+            <input type="text" name="title" value="Ma première note" required />
+          </div>
+          <div>
+            <label>Visibilité</label>
+            <select name="isPublic">
+              <option value="true">Publique</option>
+              <option value="false">Privée</option>
+            </select>
+          </div>
+        </div>
+
+        <label>Contenu</label>
+        <textarea name="content">Contenu de démonstration pour le laboratoire.</textarea>
+
+        <div class="actions">
+          <button type="submit">Enregistrer la note</button>
+        </div>
+      </form>
+      <div id="noteStatus" class="status">Aucune action</div>
+    </section>
+
+    <section class="card">
+      <h2>Recherche</h2>
+      <label>Requête</label>
+      <input type="text" id="searchInput" value="note" />
+      <div class="actions">
+        <button id="searchBtn">Rechercher</button>
+        <button class="secondary" id="loadNotesBtn">Charger toutes les notes</button>
+      </div>
+      <div class="hint">Pour les démonstrations pédagogiques, tu peux aussi tester des requêtes spéciales côté backend.</div>
+    </section>
+
+    <section class="card">
+      <h2>État courant</h2>
+      <div id="currentUser" class="mono">Aucun utilisateur connecté</div>
+    </section>
+
+    <section class="card full">
+      <h2>Résultats / Notes</h2>
+      <div id="notesList" class="notes-list"></div>
+    </section>
+  </main>
+
+  <script>
+    const api = {
+      register: '/api/auth/register',
+      login: '/api/auth/login',
+      notes: '/api/notes'
+    };
+
+    const state = {
+      token: localStorage.getItem('secnotes_token') || '',
+      user: JSON.parse(localStorage.getItem('secnotes_user') || 'null')
+    };
+
+    const els = {
+      registerForm: document.getElementById('registerForm'),
+      loginForm: document.getElementById('loginForm'),
+      noteForm: document.getElementById('noteForm'),
+      registerStatus: document.getElementById('registerStatus'),
+      loginStatus: document.getElementById('loginStatus'),
+      noteStatus: document.getElementById('noteStatus'),
+      currentUser: document.getElementById('currentUser'),
+      notesList: document.getElementById('notesList'),
+      searchInput: document.getElementById('searchInput'),
+      searchBtn: document.getElementById('searchBtn'),
+      loadNotesBtn: document.getElementById('loadNotesBtn'),
+      logoutBtn: document.getElementById('logoutBtn')
+    };
+
+    function showStatus(target, text, type = '') {
+      target.textContent = typeof text === 'string' ? text : JSON.stringify(text, null, 2);
+      target.className = 'status' + (type ? ' ' + type : '');
+    }
+
+    function updateCurrentUser() {
+      const payload = {
+        token: state.token || '(vide)',
+        user: state.user || null
+      };
+      els.currentUser.textContent = JSON.stringify(payload, null, 2);
+      showStatus(els.loginStatus, state.token ? 'Connecté' : 'Aucun token', state.token ? 'success' : '');
+    }
+
+    async function request(url, options = {}) {
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(options.headers || {})
+      };
+
+      if (state.token) {
+        headers.Authorization = 'Bearer ' + state.token;
+      }
+
+      const response = await fetch(url, { ...options, headers });
+      const text = await response.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        data = text;
+      }
+
+      if (!response.ok) {
+        throw data;
+      }
+
+      return data;
+    }
+
+    function renderNotes(notes) {
+      els.notesList.innerHTML = '';
+
+      if (!Array.isArray(notes) || notes.length === 0) {
+        els.notesList.innerHTML = '<div class="status">Aucune note trouvée.</div>';
+        return;
+      }
+
+      notes.forEach((note) => {
+        const item = document.createElement('article');
+        item.className = 'note';
+        item.innerHTML = `
+          <h3>${escapeHtml(note.title || '(sans titre)')}</h3>
+          <small>
+            ID: ${escapeHtml(note._id || '')}<br>
+            Auteur: ${escapeHtml(note.author?.username || 'inconnu')} (${escapeHtml(note.author?.email || '')})<br>
+            Visibilité: ${String(note.isPublic)}
+          </small>
+          <div>${escapeHtml(note.content || '')}</div>
+        `;
+        els.notesList.appendChild(item);
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    els.registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = new FormData(e.target);
+      const body = Object.fromEntries(form.entries());
+      try {
+        const data = await request(api.register, {
+          method: 'POST',
+          body: JSON.stringify(body)
+        });
+        showStatus(els.registerStatus, data, 'success');
+      } catch (err) {
+        showStatus(els.registerStatus, err, 'error');
+      }
+    });
+
+    els.loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = new FormData(e.target);
+      const body = Object.fromEntries(form.entries());
+      try {
+        const data = await request(api.login, {
+          method: 'POST',
+          body: JSON.stringify(body)
+        });
+        state.token = data.token || '';
+        state.user = data.user || null;
+        localStorage.setItem('secnotes_token', state.token);
+        localStorage.setItem('secnotes_user', JSON.stringify(state.user));
+        updateCurrentUser();
+        showStatus(els.loginStatus, data, 'success');
+      } catch (err) {
+        showStatus(els.loginStatus, err, 'error');
+      }
+    });
+
+    els.logoutBtn.addEventListener('click', () => {
+      state.token = '';
+      state.user = null;
+      localStorage.removeItem('secnotes_token');
+      localStorage.removeItem('secnotes_user');
+      updateCurrentUser();
+    });
+
+    els.noteForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = new FormData(e.target);
+      const body = Object.fromEntries(form.entries());
+      body.isPublic = body.isPublic === 'true';
+      try {
+        const data = await request(api.notes, {
+          method: 'POST',
+          body: JSON.stringify(body)
+        });
+        showStatus(els.noteStatus, data, 'success');
+        await loadAllNotes();
+      } catch (err) {
+        showStatus(els.noteStatus, err, 'error');
+      }
+    });
+
+    async function loadAllNotes() {
+      try {
+        const notes = await request(api.notes);
+        renderNotes(notes);
+      } catch (err) {
+        els.notesList.innerHTML = '<div class="status error">' + escapeHtml(JSON.stringify(err, null, 2)) + '</div>';
+      }
+    }
+
+    els.loadNotesBtn.addEventListener('click', loadAllNotes);
+
+    els.searchBtn.addEventListener('click', async () => {
+      const q = els.searchInput.value;
+      try {
+        const notes = await request(api.notes + '/search?q=' + encodeURIComponent(q));
+        renderNotes(notes);
+      } catch (err) {
+        els.notesList.innerHTML = '<div class="status error">' + escapeHtml(JSON.stringify(err, null, 2)) + '</div>';
+      }
+    });
+
+    updateCurrentUser();
+  </script>
+</body>
+</html>

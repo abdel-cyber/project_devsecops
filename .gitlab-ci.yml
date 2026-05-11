@@ -1,0 +1,85 @@
+stages:
+  - install
+  - test
+  - sast
+  - build
+  - deploy_local
+  - terraform_plan
+
+default:
+  tags:
+    - secnotes-local
+
+variables:
+  APP_NAME: "secnotes"
+  IMAGE_TAG: "$CI_COMMIT_SHORT_SHA"
+  SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+
+cache:
+  paths:
+    - node_modules/
+    - .sonar/cache/
+
+install_dependencies:
+  stage: install
+  script:
+    - echo "[install] Installation des dépendances..."
+    - npm ci
+  artifacts:
+    paths:
+      - node_modules/
+    expire_in: 1 day
+
+run_tests:
+  stage: test
+  dependencies:
+    - install_dependencies
+  script:
+    - echo "[test] Exécution des tests Jest..."
+    - npm test
+
+sonarqube_scan:
+  stage: sast
+  dependencies:
+    - install_dependencies
+  script:
+    - echo "[sast] Analyse SonarQube locale..."
+    - sonar-scanner
+      -Dsonar.host.url=$SONAR_HOST_URL
+      -Dsonar.login=$SONAR_TOKEN
+      -Dsonar.projectKey=secnotes-vuln-app
+  allow_failure: true
+
+docker_build:
+  stage: build
+  script:
+    - echo "[build] Construction de l'image Docker..."
+    - docker build -t secnotes:$IMAGE_TAG .
+    - docker tag secnotes:$IMAGE_TAG secnotes:latest
+
+deploy_k8s_local:
+  stage: deploy_local
+  only:
+    - main
+  script:
+    - echo "[deploy] Déploiement local sur Kubernetes..."
+    - kubectl apply -f k8s/namespace.yaml
+    - kubectl apply -f k8s/configmap.yaml
+    - kubectl apply -f k8s/secret.yaml
+    - kubectl apply -f k8s/deployment.yaml
+    - kubectl apply -f k8s/service.yaml
+
+terraform_plan:
+  stage: terraform_plan
+  only:
+    - main
+  when: manual
+  script:
+    - echo "[terraform] Préparation du plan AWS..."
+    - cd terraform
+    - terraform init
+    - terraform plan -out=tfplan
+  artifacts:
+    paths:
+      - terraform/tfplan
+    expire_in: 1 day

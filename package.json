@@ -1,0 +1,38 @@
+{
+  "name": "secnotes-vuln-app",
+  "version": "1.0.0",
+  "description": "Application Node.js + MongoDB volontairement vuln\u00e9rable pour TP DevSecOps",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node src/app.js",
+    "test": "jest --runInBand --detectOpenHandles",
+    "test:watch": "jest --watch",
+    "sonar": "sonar-scanner"
+  },
+  "keywords": [
+    "devsecops",
+    "nodejs",
+    "mongodb",
+    "vulnerable",
+    "education"
+  ],
+  "author": "OpenAI for educational lab use",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "4.17.1",
+    "jsonwebtoken": "8.5.1",
+    "lodash": "4.17.19",
+    "md5": "^2.3.0",
+    "mongoose": "^7.6.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "mongodb-memory-server": "^10.1.4",
+    "supertest": "^7.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node"
+  }
+}

@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo
+  namespace: secnotes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+        - name: mongo
+          image: mongo:6
+          ports:
+            - containerPort: 27017
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secnotes-app
+  namespace: secnotes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: secnotes-app
+  template:
+    metadata:
+      labels:
+        app: secnotes-app
+    spec:
+      containers:
+        - name: secnotes-app
+          image: secnotes:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: secnotes-config
+            - secretRef:
+                name: secnotes-secrets
