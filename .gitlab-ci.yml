@@ -71,7 +71,7 @@ deploy_k8s_local:
   stage: deploy_local
   image: 
     name: bitnami/kubectl:latest
-    entrypoint: [""] # <--- C'est cette ligne magique qui règle tout
+    entrypoint: [""] # <--- TRÈS IMPORTANT : permet de lancer le script shell
   only:
     - main
   tags:
