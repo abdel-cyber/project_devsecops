@@ -69,8 +69,16 @@ docker_build:
 
 deploy_k8s_local:
   stage: deploy_local
+  image: bitnami/kubectl:latest
   only:
     - main
+  tags:
+    - local
   script:
-    - echo "[deploy] Déploiement local sur Kubernetes..."
-    - kubectl apply -f k8s/
+    - echo "[deploy] Connexion au cluster Kubernetes local..."
+    # On pointe vers l'hôte Docker Desktop
+    - kubectl config set-cluster docker-desktop --server=https://host.docker.internal:6443 --insecure-skip-tls-verify
+    - kubectl config set-context docker-desktop --cluster=docker-desktop
+    - kubectl config use-context docker-desktop
+    - echo "[deploy] Application des manifestes YAML..."
+    - kubectl apply -f k8s/ --recursive
