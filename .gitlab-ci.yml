@@ -69,7 +69,7 @@ docker_build:
     - docker tag secnotes:$IMAGE_TAG secnotes:latest
 
 deploy_k8s_local:
-  stage: deploy  # <--- On remplace deploy_local par deploy
+  stage: deploy_local  # <--- On remet l'étape présente dans la liste
   image: 
     name: bitnami/kubectl:latest
     entrypoint: [""]
