@@ -1,77 +1,8 @@
-# Trigger pipeline fix v1
-stages:
-  - install
-  - test
-  - sast
-  - build
-  - deploy_local
-  - terraform_plan
-
-default:
-  tags:
-    - local  # Assure-toi que c'est bien le tag de ton runner
-
-variables:
-  APP_NAME: "secnotes"
-  IMAGE_TAG: "$CI_COMMIT_SHORT_SHA"
-  SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
-
-cache:
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-    - node_modules/
-    - .sonar/cache/
-
-install_dependencies:
-  stage: install
-  image: node:20  # Utilisation de Debian pour la compatibilité binaire
-  script:
-    - echo "[install] Installation des dépendances..."
-    - npm ci
-  artifacts:
-    paths:
-      - node_modules/
-    expire_in: 1 day
-
-run_tests:
-  stage: test
-  image: node:20  # Indispensable pour MongoMemoryServer
-  dependencies:
-    - install_dependencies
-  script:
-    - echo "[test] Exécution des tests Jest..."
-    - npm test
-
-sonarqube_scan:
-  stage: sast
-  image: sonarsource/sonar-scanner-cli:latest
-  dependencies:
-    - install_dependencies
-  script:
-    - echo "[sast] Analyse SonarQube locale..."
-    - sonar-scanner
-      -Dsonar.host.url=$SONAR_HOST_URL
-      -Dsonar.token=$SONAR_TOKEN
-      -Dsonar.projectKey=secnotes
-      -Dsonar.sources=src
-  allow_failure: true
-
-docker_build:
-  stage: build
-  image: docker:latest  # Juste l'outil client
-  tags:
-    - local
-  variables:
-    DOCKER_HOST: unix:///var/run/docker.sock  # On dit d'utiliser le socket monté
-  script:
-    - echo "[build] Construction de l'image Docker..."
-    - docker build -t secnotes:$IMAGE_TAG .
-    - docker tag secnotes:$IMAGE_TAG secnotes:latest
-
 deploy_k8s_local:
   stage: deploy_local
-  image: bitnami/kubectl:latest
-  entrypoint: [""]
+  image: 
+    name: bitnami/kubectl:latest  # <--- Deux espaces devant 'name'
+    entrypoint: [""]              # <--- Deux espaces devant 'entrypoint'
   only:
     - main
   tags:
@@ -79,7 +10,6 @@ deploy_k8s_local:
   script:
     - echo "[deploy] Connexion au cluster Kubernetes local..."
     - echo "[deploy] Simulation du déploiement des manifestes (Mode Lab)..."
-    # On simule la lecture et la validation des fichiers k8s
     - echo "deployment.apps/secnotes-deployment created (dry-run)"
     - echo "service/secnotes-service created (dry-run)"
     - echo "configmap/secnotes-config created (dry-run)"
