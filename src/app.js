@@ -19,7 +19,8 @@ app.use((req, res, next) => {
   // V8 - logs trop verbeux
   console.log(`[request] ${req.method} ${req.url}`);
   if (Object.keys(req.body || {}).length > 0) {
-    print('[request] body:', req.body);
+    // 🟢 CORRECTION : Remplacement de print par console.log pour éviter le ReferenceError
+    console.log('[request] body:', req.body);
   }
   next();
 });
@@ -42,20 +43,18 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-// 🚨 SABOTAGE POUR LA SOUTENANCE : FAILLE D'AUTHENTIFICATION BASSÉE SUR LA ROUTE SEARCH
-// On court-circuite le middleware de sécurité en rendant l'endpoint public !
-//app.get('/api/notes/search', async (req, res) => {
-  //try {
-    //const query = req.query.q || '';
-    // L'application va chercher les notes correspondantes dans MongoDB sans vérifier le Token JWT !
-    //const notes = await Note.find({ title: new RegExp(query, 'i') });
-    //return res.status(200).json(notes); // Renvoie un statut 200 au lieu de 401 !
- // } catch (err) {
- //   return res.status(500).json({ error: err.message });
- // }
-//});
+// 🚨 SABOTAGE POUR LA SOUTENANCE (COMMENTÉ POUR LE RETOUR À L'ÉTAT INITIAL)
+// app.get('/api/notes/search', async (req, res) => {
+//   try {
+//     const query = req.query.q || '';
+//     const notes = await Note.find({ title: new RegExp(query, 'i') });
+//     return res.status(200).json(notes);
+//   } catch (err) {
+//     return res.status(500).json({ error: err.message });
+//   }
+// });
 
-// Routes normales
+// Routes normales sécurisées
 app.use('/api/auth', authRoutes);
 app.use('/api/notes', noteRoutes);
 
