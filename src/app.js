@@ -44,16 +44,16 @@ app.get('/health', (req, res) => {
 
 // 🚨 SABOTAGE POUR LA SOUTENANCE : FAILLE D'AUTHENTIFICATION BASSÉE SUR LA ROUTE SEARCH
 // On court-circuite le middleware de sécurité en rendant l'endpoint public !
-app.get('/api/notes/search', async (req, res) => {
-  try {
-    const query = req.query.q || '';
+//app.get('/api/notes/search', async (req, res) => {
+  //try {
+    //const query = req.query.q || '';
     // L'application va chercher les notes correspondantes dans MongoDB sans vérifier le Token JWT !
-    const notes = await Note.find({ title: new RegExp(query, 'i') });
-    return res.status(200).json(notes); // Renvoie un statut 200 au lieu de 401 !
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-});
+    //const notes = await Note.find({ title: new RegExp(query, 'i') });
+    //return res.status(200).json(notes); // Renvoie un statut 200 au lieu de 401 !
+ // } catch (err) {
+ //   return res.status(500).json({ error: err.message });
+ // }
+//});
 
 // Routes normales
 app.use('/api/auth', authRoutes);
