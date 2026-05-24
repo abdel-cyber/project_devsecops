@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 // V2 - secret / URI en dur + log verbeux
-const DEFAULT_MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/secnotes';
+const DEFAULT_MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27117/secnotes';
 let currentUri = DEFAULT_MONGO_URI;
 
 async function connectDB() {
