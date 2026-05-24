@@ -64,6 +64,7 @@ describe('Notes routes', () => {
     expect(get.body.title).toBe('Note 1');
   });
 
+  // 🚨 SABOTAGE DE SÉCURITÉ ICI POUR FAIRE TOURNER L'AGENT AI
   test('search should return notes by title', async () => {
     await request(app)
       .post('/api/notes')
@@ -74,11 +75,12 @@ describe('Notes routes', () => {
         isPublic: false
       });
 
+    // 💣 ON SUPPRIME LE HEADER D'AUTORISATION EXPRÈS !
+    // Le serveur va renvoyer un code 401 (Unauthorized) au lieu de 200.
     const search = await request(app)
-      .get('/api/notes/search?q=Terraform')
-      .set('Authorization', `Bearer ${token}`);
+      .get('/api/notes/search?q=Terraform'); // <-- Plus de .set('Authorization'...) !
 
-    expect(search.statusCode).toBe(200);
+    expect(search.statusCode).toBe(200); // <-- Cette assertion va lever une erreur !
     expect(Array.isArray(search.body)).toBe(true);
     expect(search.body.length).toBeGreaterThanOrEqual(1);
   });
