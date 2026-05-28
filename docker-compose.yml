@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  # 🐳 L'application Express (SecNotes) uniquement
+  web-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: secnotes-app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      # 🟢 CONNEXION DIRECTE : On cible le MongoDB qui tourne déjà sur votre PC hôte (port 27017)
+      - MONGO_URI=mongodb://host.docker.internal:27017/secnotes
+      - JWT_SECRET=SuperSecretKeyDevSecOps2026
+    # 🖥️ Configuration requise pour que le conteneur puisse résoudre 'host.docker.internal'
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: always

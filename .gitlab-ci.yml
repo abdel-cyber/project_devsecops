@@ -84,3 +84,5 @@ deploy_k8s_local:
     - echo "service/secnotes-service created (dry-run)"
     - echo "configmap/secnotes-config created (dry-run)"
     - echo "[deploy] Déploiement simulé avec succès !"
+
+    
