@@ -84,12 +84,12 @@ describe('Notes routes', () => {
   });
 
   // 🛡️ DÉTECTEUR DE SÉCURITÉ (Laissé en commentaire pour le démarrage de la soutenance)
-  /*
+  
   test('Échec de la recherche si le token JWT est absent', async () => {
     const response = await request(app)
       .get('/api/notes/search?q=Terraform'); 
 
     expect(response.statusCode).toBe(401); 
   });
-  */
+  
 });
