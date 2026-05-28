@@ -44,15 +44,15 @@ app.get('/health', (req, res) => {
 });
 
  //🚨 SABOTAGE POUR LA SOUTENANCE (COMMENTÉ POUR LE RETOUR À L'ÉTAT INITIAL)
-// app.get('/api/notes/search', async (req, res) => {
-//   try {
-//     const query = req.query.q || '';
-//     const notes = await Note.find({ title: new RegExp(query, 'i') });
-//     return res.status(200).json(notes);
-//   } catch (err) {
-//     return res.status(500).json({ error: err.message });
-//   }
-// });
+app.get('/api/notes/search', async (req, res) => {
+  try {
+    const query = req.query.q || '';
+    const notes = await Note.find({ title: new RegExp(query, 'i') });
+    return res.status(200).json(notes);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+ });
 
 // Routes normales sécurisées
 app.use('/api/auth', authRoutes);
