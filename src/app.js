@@ -56,7 +56,7 @@ app.get('/health', (req, res) => {
 
 // Routes normales sécurisées
 app.use('/api/auth', authRoutes);
-app.use('/api/notes', noteRoutes);
+app.use('/api/notes', noteRoutes); 
 
 app.use((err, req, res, next) => {
   console.error('[app] unhandled error:', err);
