@@ -43,16 +43,17 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
- //🚨 SABOTAGE POUR LA SOUTENANCE (COMMENTÉ POUR LE RETOUR À L'ÉTAT INITIAL)
- app.get('/api/notes/search', async (req, res) => {
+ /// 🚨 SABOTAGE POUR LA SOUTENANCE (Route publique sans middleware)
+app.get('/api/notes/search', async (req, res) => {
    try {
      const query = req.query.q || '';
+     const Note = require('./models/Note'); // Assure-toi que le modèle est importé
      const notes = await Note.find({ title: new RegExp(query, 'i') });
      return res.status(200).json(notes);
    } catch (err) {
      return res.status(500).json({ error: err.message });
    }
- });
+});
 
 // Routes normales sécurisées
 app.use('/api/auth', authRoutes);
